@@ -1,19 +1,22 @@
 import requests
+import json
 
 BOT_TOKEN = "8296753617:AAEuM1TCmOGA3_YujdHzRBINEJOQXQEQ2Ss"
 CHAT_ID = "-1002818920734"
 
-def handler(request, response):
+def handler(request):
     try:
-        body = request.json()
+        # request.body contient le JSON envoyé
+        body = json.loads(request.body.decode("utf-8"))
         message = body.get("message", "").strip()
         parse_mode = body.get("parse_mode", "HTML")
 
         if not message:
-            return response.status(400).json({
-                "status": "no",
-                "error": "Message is empty"
-            })
+            return {
+                "statusCode": 400,
+                "headers": {"Content-Type": "application/json"},
+                "body": json.dumps({"status": "no", "error": "Message is empty"})
+            }
 
         url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
         payload = {
@@ -25,18 +28,21 @@ def handler(request, response):
         r = requests.post(url, json=payload, timeout=10)
 
         if r.ok:
-            return response.status(200).json({
-                "status": "ok",
-                "message": "Message sent ✅"
-            })
+            return {
+                "statusCode": 200,
+                "headers": {"Content-Type": "application/json"},
+                "body": json.dumps({"status": "ok", "message": "Message sent ✅"})
+            }
         else:
-            return response.status(r.status_code).json({
-                "status": "no",
-                "error": r.text
-            })
+            return {
+                "statusCode": r.status_code,
+                "headers": {"Content-Type": "application/json"},
+                "body": json.dumps({"status": "no", "error": r.text})
+            }
 
     except Exception as e:
-        return response.status(500).json({
-            "status": "no",
-            "error": str(e)
-        })
+        return {
+            "statusCode": 500,
+            "headers": {"Content-Type": "application/json"},
+            "body": json.dumps({"status": "no", "error": str(e)})
+        }
