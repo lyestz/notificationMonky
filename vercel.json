@@ -1,15 +1,9 @@
 {
   "version": 2,
   "builds": [
-    {
-      "src": "api/send_message.py",
-      "use": "@vercel/python"
-    }
+    { "src": "api/send_message.py", "use": "@vercel/python" }
   ],
   "routes": [
-    {
-      "src": "/api/send_message",
-      "dest": "api/send_message.py"
-    }
+    { "src": "/api/send_message", "dest": "api/send_message.py" }
   ]
 }
