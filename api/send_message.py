@@ -6,12 +6,12 @@ CHAT_ID = "-1002818920734"
 
 CORS_HEADERS = {
     "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type"
 }
 
 def handler(request):
-    # Gestion du preflight (OPTIONS)
+    # ✅ Réponse pour le preflight CORS (OPTIONS)
     if request.method == "OPTIONS":
         return {
             "statusCode": 200,
@@ -20,7 +20,11 @@ def handler(request):
         }
 
     try:
-        body = json.loads(request.body.decode("utf-8"))
+        # ✅ Lecture du JSON envoyé
+        body = {}
+        if request.body:
+            body = json.loads(request.body.decode("utf-8"))
+
         message = body.get("message", "").strip()
         parse_mode = body.get("parse_mode", "HTML")
 
@@ -31,6 +35,7 @@ def handler(request):
                 "body": json.dumps({"status": "no", "error": "Message is empty"})
             }
 
+        # ✅ Envoi à Telegram
         url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
         payload = {
             "chat_id": CHAT_ID,
