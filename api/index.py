@@ -1,56 +1,30 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS
 import requests
-import traceback
-
-app = Flask(__name__)
-CORS(app)
+import json
 
 BOT_TOKEN = "8296753617:AAEuM1TCmOGA3_YujdHzRBINEJOQXQEQ2Ss"
 CHAT_ID = "-1002818920734"
 
-
-@app.route("/api/send_message", methods=["POST"])
-def send_message():
-    if not BOT_TOKEN or not CHAT_ID:
-        return jsonify({
-            "status": "no",
-            "error": "Missing TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID"
-        }), 500
-
+def handler(request, response):
     try:
-        body = request.get_json(force=True) or {}
+        body = request.get_json()
         message = body.get("message", "").strip()
-        parse_mode = body.get("parse_mode", "HTML")  # par défaut HTML
 
         if not message:
-            return jsonify({"status": "no", "error": "Message is empty"}), 400
+            return response.status(400).json({"status": "no", "error": "Message is empty"})
 
         url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
         payload = {
             "chat_id": CHAT_ID,
             "text": message,
-            "parse_mode": parse_mode
+            "parse_mode": "HTML"
         }
 
-        resp = requests.post(url, json=payload, timeout=10)
+        r = requests.post(url, json=payload, timeout=10)
 
-        if resp.ok:
-            return jsonify({"status": "ok", "message": "Message sent ✅"}), 200
+        if r.ok:
+            return response.status(200).json({"status": "ok", "message": "Message sent ✅"})
         else:
-            return jsonify({
-                "status": "no",
-                "error": resp.text
-            }), resp.status_code
+            return response.status(r.status_code).json({"status": "no", "error": r.text})
 
     except Exception as e:
-        traceback.print_exc()
-        return jsonify({
-            "status": "no",
-            "error": str(e)
-        }), 500
-
-
-if __name__ == '__main__':
-    app.run(debug=True)
-
+        return response.status(500).json({"status": "no", "error": str(e)})
