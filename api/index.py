@@ -6,7 +6,6 @@ import traceback
 app = Flask(__name__)
 CORS(app)
 
-# Fixe directement les valeurs ici
 BOT_TOKEN = "8296753617:AAEuM1TCmOGA3_YujdHzRBINEJOQXQEQ2Ss"
 CHAT_ID = "-1002818920734"
 
@@ -52,5 +51,6 @@ def send_message():
         }), 500
 
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+if __name__ == '__main__':
+    app.run(debug=True)
+
